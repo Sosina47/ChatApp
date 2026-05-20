@@ -54,18 +54,16 @@ public class ClientGUI extends Application {
         }); 
 
         sendButton = new Button("Send");
-        
         sendButton.setOnAction(e -> {
-            String message = messageField.getText().trim(); 
-
+            String message = messageField.getText().trim();
             if (message.isEmpty()) {
-                return ; 
+                return;
             }
 
-            connection.send("MESSAGE|" + username + "|" + message); 
-            messageField.clear(); 
+            connection.send("MESSAGE|" + username + "|" + message);
+            chatArea.appendText("YOU: " + message + "\n");
+            messageField.clear();
         });
-        
         
 
         HBox topBar = new HBox(10, usernameField, connectButton);
@@ -75,7 +73,6 @@ public class ClientGUI extends Application {
 
 
         HBox bottomBar = new HBox(10, messageField, sendButton);
-
         BorderPane root = new BorderPane();
 
         root.setTop(topBar);

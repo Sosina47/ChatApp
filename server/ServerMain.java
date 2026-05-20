@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class ServerMain {
     // Stores connected clients
@@ -15,6 +16,16 @@ public class ServerMain {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
             System.out.println("Server started on port " + port);
+
+            Scanner scanner = new Scanner(System.in);
+            Thread consoleThread = new Thread(() -> {
+                while (true) {
+                    String command = scanner.nextLine();
+                    processCommand(command);
+                }
+            });
+
+            consoleThread.start();
             
             // always Wait for client
             while (true) {
@@ -32,14 +43,28 @@ public class ServerMain {
         }
     }
 
+    private static void processCommand(String command) {
+        if (command.startsWith("/send ")) {
+            String[] parts = command.split(" ", 3);
+            if (parts.length < 3) {
+                System.out.println("Usage: /send username message");
+                return;
+            }
+
+            String username = parts[1];
+            String message = parts[2];
+            sendToClient(username, message);
+        }
+    }
+
     // Send message to specific client
     public static void sendToClient(String username, String message) {
         ClientHandler client = clients.get(username);
-
         if (client != null) {
-            client.sendMessage(message);
-
-        } else {
+            client.sendMessage("MESSAGE|SERVER|" + message);
+            System.out.println("Sent to " + username);
+        }
+        else {
             System.out.println("Client not found");
         }
     }
