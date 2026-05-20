@@ -56,8 +56,6 @@ public class ClientHandler  implements Runnable{
         String sender = parts[1].trim(); 
         String content = parts[2].trim(); 
 
-        System.out.println("type = " + type); 
-
         switch(type) {
             case Protocol.CONNECT:
                 if (ServerMain.clients.containsKey(sender)) {
@@ -71,10 +69,7 @@ public class ClientHandler  implements Runnable{
                     
                     return; 
                 }         
-                
-                System.out.println("Adding: " + sender); 
-                System.out.println(ServerMain.clients.keySet()); 
-                
+                                
                 username = sender; 
 
                 ServerMain.clients.put(username, this); 
@@ -84,7 +79,7 @@ public class ClientHandler  implements Runnable{
             case Protocol.MESSAGE:
                 System.out.println(sender + ": " + content); 
 
-                sendMessage("MESSAGE|SERVER|Message received"); 
+                // sendMessage("MESSAGE|SERVER|Message received"); 
                 break; 
 
             case Protocol.DISCONNECT:
