@@ -8,6 +8,10 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.application.Platform;
 import java.io.IOException; 
+import javafx.stage.FileChooser;
+import java.io.File;
+import java.nio.file.Files;
+import java.util.Base64;
 
 public class ClientGUI extends Application {
 
@@ -18,6 +22,7 @@ public class ClientGUI extends Application {
 
     private Button connectButton;
     private Button sendButton;
+    private Button fileButton; 
 
     private ClientConnection connection; 
     private String username; 
@@ -54,6 +59,8 @@ public class ClientGUI extends Application {
         }); 
 
         sendButton = new Button("Send");
+        fileButton = new Button("Send File");
+
         sendButton.setOnAction(e -> {
             String message = messageField.getText().trim();
             if (message.isEmpty()) {
@@ -64,6 +71,26 @@ public class ClientGUI extends Application {
             chatArea.appendText("YOU: " + message + "\n");
             messageField.clear();
         });
+
+        fileButton.setOnAction(e -> {
+            FileChooser chooser = new FileChooser();
+            File file = chooser.showOpenDialog(stage);
+            if (file == null) {
+                return;
+            }
+
+            try {
+                byte[] fileBytes = Files.readAllBytes(file.toPath());
+                String encoded = Base64.getEncoder().encodeToString(fileBytes);
+                connection.send("FILE|" + username + "|" + file.getName() + "|" + encoded);
+                chatArea.appendText("YOU SENT FILE: " + file.getName() + "\n");
+            }
+
+            catch (Exception ex) {
+                chatArea.appendText("File send failed\n"
+                );
+            }
+        });
         
 
         HBox topBar = new HBox(10, usernameField, connectButton);
@@ -72,7 +99,7 @@ public class ClientGUI extends Application {
         messageField.setPromptText("Enter message");
 
 
-        HBox bottomBar = new HBox(10, messageField, sendButton);
+        HBox bottomBar = new HBox(10, messageField, sendButton, fileButton);
         BorderPane root = new BorderPane();
 
         root.setTop(topBar);

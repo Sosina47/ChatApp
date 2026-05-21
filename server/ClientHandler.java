@@ -2,7 +2,8 @@ package server;
 
 import shared.Protocol;
 import java.io.*; 
-import java.net.Socket; 
+import java.net.Socket;
+import java.util.Base64;
 
 public class ClientHandler  implements Runnable{
     private Socket socket; 
@@ -34,11 +35,15 @@ public class ClientHandler  implements Runnable{
                     break;
                 }
 
-                // System.out.println("Received: " + message); 
-                ServerMain.log(message);
-                processMessage(message);  
+                if (message.startsWith("FILE|")) {
+                    ServerMain.log("FILE received");
 
+                } else {
+                    ServerMain.log(message);
+                }                
+                processMessage(message);  
             }
+
         } catch (IOException e) {
             if (username != null) {
                 // System.out.println(username + " disconnected"); 
@@ -52,7 +57,7 @@ public class ClientHandler  implements Runnable{
     }
     
     private void processMessage(String message) {
-        String[] parts = message.split("\\|", 3); 
+        String[] parts = message.split("\\|", 4); 
         
         String type = parts[0].trim(); 
         String sender = parts[1].trim(); 
@@ -90,6 +95,14 @@ public class ClientHandler  implements Runnable{
             case Protocol.DISCONNECT:
                 disconnect(); 
                 break; 
+
+            case "FILE":
+                String filename = parts[2];
+                String data = parts[3];
+                saveFile(filename, data);
+
+                ServerMain.log(sender + " uploaded file: " + filename);
+                break;
         }
     }
 
@@ -112,6 +125,26 @@ public class ClientHandler  implements Runnable{
 
         } catch (IOException e) {
             System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage()); 
+        }
+    }
+
+    private void saveFile(String filename, String encodedData) {
+        try {
+            byte[] fileBytes = Base64.getDecoder().decode(encodedData);
+            File dir = new File("received_files");
+
+            if (!dir.exists()) {
+                dir.mkdir();
+            }
+
+            FileOutputStream fos = new FileOutputStream("received_files/" + filename);
+
+            fos.write(fileBytes);
+            fos.close();
+        }
+
+        catch (Exception e) {
+            ServerMain.log("File save error: " + e.getMessage());
         }
     }
 }
