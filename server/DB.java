@@ -15,35 +15,23 @@ public class DB {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    public static void saveMessage(
-            String sender,
-            String receiver,
-            String content
-    ) {
-
+    public static void saveMessage(String sender, String receiver, String content) {
         String sql =
                 "INSERT INTO messages " +
                 "(sender, receiver, content) " +
                 "VALUES (?, ?, ?)";
 
         try (
-
             Connection conn = connect();
-            PreparedStatement stmt =
-                    conn.prepareStatement(sql)
-
+            PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
-
             stmt.setString(1, sender);
             stmt.setString(2, receiver);
             stmt.setString(3, content);
             stmt.executeUpdate();
-        }
-
+        } 
         catch (SQLException e) {
-            ServerMain.log(
-                    "Database Error: " + e.getMessage()
-            );
+            ServerMain.log("Database Error: " + e.getMessage());
         }
     }
 }

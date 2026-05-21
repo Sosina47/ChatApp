@@ -82,6 +82,7 @@ public class ClientGUI extends Application {
             try {
                 byte[] fileBytes = Files.readAllBytes(file.toPath());
                 String encoded = Base64.getEncoder().encodeToString(fileBytes);
+
                 connection.send("FILE|" + username + "|" + file.getName() + "|" + encoded);
                 chatArea.appendText("YOU SENT FILE: " + file.getName() + "\n");
             }
@@ -142,7 +143,7 @@ public class ClientGUI extends Application {
     }
 
     private void handleMessage(String message) {
-        String[] parts = message.split("\\|", 3);
+        String[] parts = message.split("\\|", 4);
         String type = parts[0].trim();
         String sender = parts[1].trim();
         String content = parts[2].trim();
@@ -157,7 +158,6 @@ public class ClientGUI extends Application {
         }
     }
     
-
     public static void main(String[] args) {
         launch();
     }

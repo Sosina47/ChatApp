@@ -46,7 +46,7 @@ public class ServerMain {
 
     private static void processCommand(String command) {
         if (command.startsWith("/send ")) {
-            String[] parts = command.split(" ", 3);
+            String[] parts = command.split(" ", 4);
             if (parts.length < 3) {
                 System.out.println("Usage: /send username message");
                 return;

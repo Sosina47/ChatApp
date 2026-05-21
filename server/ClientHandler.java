@@ -3,6 +3,10 @@ package server;
 import shared.Protocol;
 import java.io.*; 
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Base64;
 
 public class ClientHandler  implements Runnable{
@@ -30,7 +34,6 @@ public class ClientHandler  implements Runnable{
         try {
             while (true) {
                 String message = reader.readLine(); 
-
                 if (message == null) {
                     break;
                 }
@@ -97,11 +100,17 @@ public class ClientHandler  implements Runnable{
                 break; 
 
             case "FILE":
-                String filename = parts[2];
-                String data = parts[3];
-                saveFile(filename, data);
+                System.out.println("FILE received");
+                String[] fileParts = message.split("\\|", 4);
 
-                ServerMain.log(sender + " uploaded file: " + filename);
+                String sndr = fileParts[1];
+                String filename = fileParts[2];
+                String encodedData = fileParts[3];
+
+                System.out.println(sndr + " uploaded file: " + filename);
+
+                saveFile(filename, encodedData);
+
                 break;
         }
     }
@@ -130,21 +139,39 @@ public class ClientHandler  implements Runnable{
 
     private void saveFile(String filename, String encodedData) {
         try {
-            byte[] fileBytes = Base64.getDecoder().decode(encodedData);
-            File dir = new File("received_files");
+            byte[] fileBytes = java.util.Base64.getDecoder().decode(encodedData);
+            java.nio.file.Path path = java.nio.file.Paths.get("received_files");
 
-            if (!dir.exists()) {
-                dir.mkdir();
+            java.nio.file.Files.createDirectories(path);
+            java.nio.file.Files.write(path.resolve(filename), fileBytes);
+
+            System.out.println("File saved");
+
+            try {
+                Connection conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/chat_app",
+                    "root",
+                    ""
+                );
+
+                String sql = "INSERT INTO files(sender, filename, filepath) VALUES(?, ?, ?)";
+
+                PreparedStatement stmt = conn.prepareStatement(sql);
+
+                stmt.setString(1, username);
+                stmt.setString(2, filename);
+                stmt.setString(3, path.resolve(filename).toString());
+
+                stmt.executeUpdate();
+
+                stmt.close();
+                conn.close();
+
+            } catch (SQLException e) {
+                System.out.println("Database error: " + e.getMessage());
             }
-
-            FileOutputStream fos = new FileOutputStream("received_files/" + filename);
-
-            fos.write(fileBytes);
-            fos.close();
-        }
-
-        catch (Exception e) {
-            ServerMain.log("File save error: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("File save error: " + e.getMessage());
         }
     }
 }
