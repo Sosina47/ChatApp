@@ -83,6 +83,7 @@ public class ClientHandler  implements Runnable{
                 // System.out.println(sender + ": " + content); 
                 ServerMain.log(sender + ": " + content); 
 
+                DB.saveMessage(sender, "SERVER", content);
                 // sendMessage("MESSAGE|SERVER|Message received"); 
                 break; 
 

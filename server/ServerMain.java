@@ -64,6 +64,8 @@ public class ServerMain {
         if (client != null) {
             client.sendMessage("MESSAGE|SERVER|" + message);
             System.out.println("Sent to " + username);
+
+            DB.saveMessage("SERVER", username,message);
         }
         else {
             System.out.println("Client not found");
