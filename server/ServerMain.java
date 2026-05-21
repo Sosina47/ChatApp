@@ -9,8 +9,9 @@ import java.util.Scanner;
 public class ServerMain {
     // Stores connected clients
     public static HashMap<String, ClientHandler> clients = new HashMap<>();
+    public static ServerGUI gui; 
 
-    public static void main(String[] args) {
+    public static void startServer() {
         int port = 5000;
 
         try {
@@ -66,6 +67,14 @@ public class ServerMain {
         }
         else {
             System.out.println("Client not found");
+        }
+    }
+
+    public static void log(String message) {
+        System.out.println(message);
+
+        if (gui != null) {
+            gui.addLog(message);
         }
     }
 

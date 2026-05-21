@@ -17,7 +17,6 @@ public class ClientHandler  implements Runnable{
 
         try {
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream())); 
-
             writer = new PrintWriter(socket.getOutputStream(), true); 
 
         } catch(IOException e) {
@@ -35,16 +34,19 @@ public class ClientHandler  implements Runnable{
                     break;
                 }
 
-                System.out.println("Received: " + message); 
+                // System.out.println("Received: " + message); 
+                ServerMain.log(message);
                 processMessage(message);  
 
             }
         } catch (IOException e) {
             if (username != null) {
-                System.out.println(username + " disconnected"); 
+                // System.out.println(username + " disconnected"); 
+                ServerMain.log(username + " disconnected");
                 
             } else {
-                System.out.println("Client disconnected"); 
+                // System.out.println("Client disconnected"); 
+                ServerMain.log("Client disconnected"); 
             }
         }
     }
@@ -73,11 +75,13 @@ public class ClientHandler  implements Runnable{
                 username = sender; 
 
                 ServerMain.clients.put(username, this); 
-                System.out.println(username + " connected"); 
+                // System.out.println(username + " connected"); 
+                ServerMain.log(username + " connected"); 
                 break;
 
             case Protocol.MESSAGE:
-                System.out.println(sender + ": " + content); 
+                // System.out.println(sender + ": " + content); 
+                ServerMain.log(sender + ": " + content); 
 
                 // sendMessage("MESSAGE|SERVER|Message received"); 
                 break; 
@@ -99,8 +103,11 @@ public class ClientHandler  implements Runnable{
             }
 
             socket.close();
-            System.out.println("connection close"); 
-            System.out.println(ServerMain.clients.keySet()); 
+            // System.out.println("connection close"); 
+            ServerMain.log("connection close");
+
+            // System.out.println(ServerMain.clients.keySet()); 
+            // ServerMain.log(ServerMain.clients.keySet());
 
         } catch (IOException e) {
             System.out.println(e.getClass().getSimpleName() + ": " + e.getMessage()); 
